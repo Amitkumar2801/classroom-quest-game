@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G.P BARH - Campus Chaos Game</title>
+    <meta name="description" content="Fun educational game for G.P BARH students">
+    <meta name="theme-color" content="#2A5CAA">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="game logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- College Header -->
+        <header class="header">
+            <div class="logo-container">
+                <img src="game logo.png" alt="G.P BARH Logo" class="college-logo" onerror="this.src='https://via.placeholder.com/150x150/2A5CAA/FFFFFF?text=G.P+BARH'">
+                <div class="title">
+                    <h1>G.P BARH</h1>
+                    <h2>Campus Chaos Adventure</h2>
+                    <p class="tagline">Fun • Education • Entertainment</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Student Registration Form -->
+        <main class="main-content">
+            <div class="form-card">
+                <h3><span class="icon">📝</span> Student Registration</h3>
+                <p class="form-info">Register once, play forever! Your progress will be saved.</p>
+                
+                <form id="studentForm">
+                    <div class="input-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" placeholder="Enter your full name" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="roll">Roll Number</label>
+                        <input type="number" id="roll" placeholder="e.g., 2101010" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="branch">Branch</label>
+                        <select id="branch" required>
+                            <option value="">Select Branch</option>
+                            <option value="CSE">Computer Science</option>
+                            <option value="ECE">Electronics</option>
+                            <option value="ME">Mechanical</option>
+                            <option value="CE">Civil</option>
+                            <option value="EE">Electrical</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="session">Session</label>
+                        <input type="text" id="session" placeholder="e.g., 2023-2027" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="contact">Contact Number (Optional)</label>
+                        <input type="tel" id="contact" placeholder="10-digit mobile number">
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <span class="btn-icon">🎮</span> Start Game Adventure
+                    </button>
+                </form>
+                
+                <div class="features">
+                    <h4>🎯 Game Features:</h4>
+                    <ul>
+                        <li>✅ 3 Exciting Campus Levels</li>
+                        <li>✅ Earn Points & Buy Items</li>
+                        <li>✅ VIP Reels (100k points)</li>
+                        <li>✅ Multiple Mini-Games</li>
+                        <li>✅ Live Leaderboard</li>
+                        <li>✅ Works Offline (PWA)</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        <!-- Install Prompt -->
+        <div class="install-banner" id="installBanner">
+            <div class="install-content">
+                <span class="install-icon">📱</span>
+                <div class="install-text">
+                    <strong>Install for Better Experience</strong>
+                    <small>Play offline, faster loading, app-like feel</small>
+                </div>
+                <button class="install-btn" id="installBtn">Add to Home</button>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>© 2026 G.P BARH Campus Game Project | Made with ❤️ for Students</p>
+            <p>Built by AMIT KUMAR SHARMA</p>
+            <p class="admin-hint">💡 Admin Tip: Press A+D+M+I+N keys together anywhere for admin panel</p>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Saving to college database...</p>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/sheets-api.js"></script>
+    <script>
+        // PWA Installation
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBanner').style.display = 'block';
+        });
+
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    document.getElementById('installBanner').style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('SW registered:', reg))
+                    .catch(err => console.log('SW registration failed:', err));
+            });
+        }
+    </script>
+</body>
+</html>
