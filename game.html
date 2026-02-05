@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G.P BARH - Campus Chaos Game</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/game-styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Admin Panel (Hidden by default) -->
+    <div id="adminPanel" class="admin-panel">
+        <div class="admin-content">
+            <h3>👑 Admin Control Panel</h3>
+            <div class="admin-section">
+                <h4>Manual Score Adjustment</h4>
+                <input type="number" id="adminRoll" placeholder="Roll Number">
+                <input type="number" id="adminPoints" placeholder="Points to Add">
+                <button onclick="adminAddPoints()">Add Points</button>
+            </div>
+            <div class="admin-section">
+                <h4>Game Settings</h4>
+                <button onclick="unlockAllLevels()">Unlock All Levels</button>
+                <button onclick="resetGameData()">Reset Game Data</button>
+                <button onclick="addTestPlayers()">Add Test Players</button>
+            </div>
+            <div class="admin-section">
+                <h4>Database Info</h4>
+                <p id="dbStats">Loading...</p>
+                <button onclick="syncOfflineData()">Sync Offline Data</button>
+            </div>
+            <button onclick="hideAdminPanel()">Close Admin Panel</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <!-- Header with Player Info -->
+        <header class="game-header">
+            <div class="player-info">
+                <div class="avatar">👨‍🎓</div>
+                <div class="player-details">
+                    <h3 id="playerName">Loading...</h3>
+                    <p>Roll: <span id="playerRoll">---</span> | Branch: <span id="playerBranch">---</span></p>
+                    <p class="session">Session: <span id="playerSession">---</span></p>
+                </div>
+            </div>
+            
+            <div class="score-board">
+                <div class="score-item">
+                    <span class="score-label">🏆 Score</span>
+                    <span class="score-value" id="totalScore">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">💰 Points</span>
+                    <span class="score-value" id="totalPoints">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">📈 Level</span>
+                    <span class="score-value" id="playerLevel">1</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Game Navigation -->
+        <main class="game-main">
+            <div class="welcome-message">
+                <h2>Welcome to G.P BARH - Campus Chaos Game!</h2>
+                <p>Complete levels, earn points, unlock features and have fun!</p>
+            </div>
+
+            <!-- Main Levels -->
+            <section class="levels-section">
+                <h3>🎯 Campus Levels</h3>
+                <div class="levels-grid">
+                    <!-- Level 1 -->
+                    <div class="level-card" data-level="1">
+                        <div class="level-icon">🏫</div>
+                        <h4>Classroom Challenge</h4>
+                        <p>Solve quick quizzes before the bell rings!</p>
+                        <div class="level-stats">
+                            <span>Reward: 500 points</span>
+                            <span class="status unlocked">🔓 UNLOCKED</span>
+                        </div>
+                        <button class="play-btn" onclick="startLevel(1)">PLAY NOW</button>
+                    </div>
+
+                    <!-- Level 2 -->
+                    <div class="level-card" data-level="2">
+                        <div class="level-icon">🍽️</div>
+                        <h4>Canteen Chaos</h4>
+                        <p>Manage the lunch rush! Serve food quickly.</p>
+                        <div class="level-stats">
+                            <span>Reward: 1000 points</span>
+                            <span class="status locked" id="level2Status">🔒 LOCKED</span>
+                        </div>
+                        <button class="play-btn locked" onclick="checkLevelLock(2)">UNLOCK AT LEVEL 1</button>
+                    </div>
+
+                    <!-- Level 3 -->
+                    <div class="level-card" data-level="3">
+                        <div class="level-icon">⚽</div>
+                        <h4>Sports Ground</h4>
+                        <p>Athletic challenges and team games!</p>
+                        <div class="level-stats">
+                            <span>Reward: 2000 points</span>
+                            <span class="status locked" id="level3Status">🔒 LOCKED</span>
+                        </div>
+                        <button class="play-btn locked" onclick="checkLevelLock(3)">UNLOCK AT LEVEL 2</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="quick-actions">
+                <h3>⚡ Quick Actions</h3>
+                <div class="actions-grid">
+                    <button class="action-btn" onclick="window.location.href='pages/store.html'">
+                        <span class="action-icon">🛒</span>
+                        <span>Game Store</span>
+                        <small>Buy power-ups & items</small>
+                    </button>
+                    
+                    <button class="action-btn" onclick="window.location.href='pages/leaderboard.html'">
+                        <span class="action-icon">🏆</span>
+                        <span>Leaderboard</span>
+                        <small>See top players</small>
+                    </button>
+                    
+                    <button class="action-btn" onclick="window.location.href='pages/reels.html'">
+                        <span class="action-icon">🎬</span>
+                        <span>VIP Reels</span>
+                        <small>100,000 points needed</small>
+                    </button>
+                    
+                    <button class="action-btn" onclick="buyPointsPopup()">
+                        <span class="action-icon">💰</span>
+                        <span>Buy Points</span>
+                        <small>Get instant points</small>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Extra Mini-Games -->
+            <section class="mini-games-section">
+                <h3>🎮 Extra Mini-Games</h3>
+                <div class="mini-games-grid">
+                    <div class="mini-game-card" onclick="window.location.href='mini-games/flip-cards/flip-game.html'">
+                        <h4>🎴 Memory Cards</h4>
+                        <p>Flip and match cards. Earn up to 200 points!</p>
+                        <div class="game-tag">EASY</div>
+                    </div>
+                    
+                    <div class="mini-game-card" onclick="window.location.href='mini-games/quick-math/math-game.html'">
+                        <h4>🧮 Quick Math</h4>
+                        <p>Solve math problems quickly. 100 points reward!</p>
+                        <div class="game-tag">MEDIUM</div>
+                    </div>
+                    
+                    <div class="mini-game-card" onclick="window.location.href='mini-games/target-shoot/shoot-game.html'">
+                        <h4>🎯 Target Shoot</h4>
+                        <p>Shoot targets accurately. 300 points possible!</p>
+                        <div class="game-tag">HARD</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cheat Code Input -->
+            <section class="cheat-section">
+                <h3>🕹️ Cheat Codes</h3>
+                <p class="cheat-hint">Try codes like: EXTRA_POINTS, UNLOCK_ALL, MASTER_KEY</p>
+                <div class="cheat-input">
+                    <input type="text" id="cheatCode" placeholder="Enter cheat code here...">
+                    <button onclick="checkCheatCode()">SUBMIT CODE</button>
+                </div>
+                <div id="cheatResult" class="cheat-result"></div>
+            </section>
+        </main>
+
+        <!-- Footer Navigation -->
+        <footer class="game-footer">
+            <button class="footer-btn" onclick="window.location.href='index.html'">
+                <span>🏠</span> Home
+            </button>
+            <button class="footer-btn" onclick="showHelp()">
+                <span>❓</span> Help
+            </button>
+            <button class="footer-btn" onclick="showSettings()">
+                <span>⚙️</span> Settings
+            </button>
+            <button class="footer-btn" onclick="logout()">
+                <span>🚪</span> Logout
+            </button>
+        </footer>
+    </div>
+
+    <!-- Buy Points Popup -->
+    <div id="buyPointsPopup" class="popup-overlay">
+        <div class="popup-content">
+            <h3>💰 Buy Game Points</h3>
+            <div class="point-packages">
+                <div class="package" onclick="buyPoints('basic')">
+                    <h4>Basic Pack</h4>
+                    <p class="points">5,000 Points</p>
+                    <p class="price">₹99</p>
+                    <button>BUY NOW</button>
+                </div>
+                <div class="package" onclick="buyPoints('premium')">
+                    <h4>Premium Pack</h4>
+                    <p class="points">15,000 Points</p>
+                    <p class="price">₹199</p>
+                    <button class="popular">MOST POPULAR</button>
+                </div>
+                <div class="package" onclick="buyPoints('vip')">
+                    <h4>VIP Pack</h4>
+                    <p class="points">50,000 Points</p>
+                    <p class="price">₹499</p>
+                    <button>BEST VALUE</button>
+                </div>
+            </div>
+            <p class="test-note">💡 Note: In test mode, points will be added without actual payment</p>
+            <button class="close-btn" onclick="closePopup()">Close</button>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>🎮 How to Play</h3>
+            <ol>
+                <li><strong>Complete Levels:</strong> Play through 3 main campus levels</li>
+                <li><strong>Earn Points:</strong> Each level gives points based on performance</li>
+                <li><strong>Use Points:</strong> Buy items in store or unlock VIP Reels</li>
+                <li><strong>Extra Games:</strong> Play mini-games for bonus points</li>
+                <li><strong>Cheat Codes:</strong> Try different codes for surprises!</li>
+            </ol>
+            <button onclick="closeModal('helpModal')">Got it!</button>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/game-engine.js"></script>
+    <script src="js/payment.js"></script>
+    
+    <script>
+        // Load player data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPlayerData();
+            checkLevelUnlocks();
+            
+            // Admin key combination (A+D+M+I+N)
+            let keysPressed = {};
+            document.addEventListener('keydown', (e) => {
+                keysPressed[e.key.toLowerCase()] = true;
+                
+                if (keysPressed['a'] && keysPressed['d'] && keysPressed['m'] && 
+                    keysPressed['i'] && keysPressed['n']) {
+                    document.getElementById('adminPanel').style.display = 'block';
+                    keysPressed = {};
+                }
+            });
+            
+            document.addEventListener('keyup', (e) => {
+                delete keysPressed[e.key.toLowerCase()];
+            });
+        });
+        
+        function loadPlayerData() {
+            const player = JSON.parse(localStorage.getItem('currentPlayer'));
+            if (player) {
+                document.getElementById('playerName').textContent = player.Name;
+                document.getElementById('playerRoll').textContent = player.Roll;
+                document.getElementById('playerBranch').textContent = player.Branch;
+                document.getElementById('playerSession').textContent = player.Session;
+                document.getElementById('totalScore').textContent = player.Score || 0;
+                document.getElementById('totalPoints').textContent = player.Points || 0;
+                document.getElementById('playerLevel').textContent = player.Level || 1;
+            } else {
+                // Redirect to registration if no player data
+                window.location.href = 'index.html';
+            }
+        }
+        
+        function checkLevelUnlocks() {
+            const player = JSON.parse(localStorage.getItem('currentPlayer'));
+            const level = player?.Level || 1;
+            
+            // Unlock level 2 if player has completed level 1
+            if (level >= 2) {
+                document.querySelector('[data-level="2"] .status').className = 'status unlocked';
+                document.querySelector('[data-level="2"] .status').textContent = '🔓 UNLOCKED';
+                document.querySelector('[data-level="2"] .play-btn').className = 'play-btn';
+                document.querySelector('[data-level="2"] .play-btn').textContent = 'PLAY NOW';
+                document.querySelector('[data-level="2"] .play-btn').onclick = function() { startLevel(2); };
+            }
+            
+            // Unlock level 3 if player has completed level 2
+            if (level >= 3) {
+                document.querySelector('[data-level="3"] .status').className = 'status unlocked';
+                document.querySelector('[data-level="3"] .status').textContent = '🔓 UNLOCKED';
+                document.querySelector('[data-level="3"] .play-btn').className = 'play-btn';
+                document.querySelector('[data-level="3"] .play-btn').textContent = 'PLAY NOW';
+                document.querySelector('[data-level="3"] .play-btn').onclick = function() { startLevel(3); };
+            }
+        }
+        
+        function startLevel(levelNum) {
+            // For now, simulate level completion
+            const points = [500, 1000, 2000][levelNum - 1];
+            
+            // Show level starting message
+            alert(`Starting Level ${levelNum}!\nComplete the challenges to earn ${points} points.`);
+            
+            // Simulate level completion after 3 seconds
+            setTimeout(() => {
+                const earned = Math.floor(points * (0.7 + Math.random() * 0.6)); // 70-130% of base
+                
+                // Update player data
+                const player = JSON.parse(localStorage.getItem('currentPlayer'));
+                player.Score = (player.Score || 0) + earned;
+                player.Points = (player.Points || 0) + earned;
+                if (levelNum > (player.Level || 1)) {
+                    player.Level = levelNum;
+                }
+                localStorage.setItem('currentPlayer', JSON.stringify(player));
+                
+                // Update Google Sheets
+                if (typeof updateScore === 'function') {
+                    updateScore(earned, levelNum);
+                }
+                
+                // Show success message
+                alert(`🎉 Level ${levelNum} Completed!\nYou earned ${earned} points!\nYour total: ${player.Points} points`);
+                
+                // Reload page to show updates
+                loadPlayerData();
+                checkLevelUnlocks();
+            }, 3000);
+        }
+        
+        function checkLevelLock(level) {
+            const player = JSON.parse(localStorage.getItem('currentPlayer'));
+            if ((player?.Level || 1) >= level - 1) {
+                startLevel(level);
+            } else {
+                alert(`Complete Level ${level - 1} first to unlock this level!`);
+            }
+        }
+        
+        function buyPointsPopup() {
+            document.getElementById('buyPointsPopup').style.display = 'flex';
+        }
+        
+        function closePopup() {
+            document.getElementById('buyPointsPopup').style.display = 'none';
+        }
+        
+        function showHelp() {
+            document.getElementById('helpModal').style.display = 'flex';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentPlayer');
+                window.location.href = 'index.html';
+            }
+        }
+        
+        function showSettings() {
+            alert('Settings:\n\n1. Sound: ON\n2. Notifications: ON\n3. Vibration: ON\n4. Data Saving: ON\n\nSettings will be fully implemented in next update.');
+        }
+    </script>
+</body>
+</html>
